@@ -14,6 +14,14 @@ model migrations {
 }
 
 model users {
-  id   Int    @id @default(autoincrement()) @db.UnsignedInt
-  name String @unique(map: "name") @db.VarChar(255)
+  id           Int       @id @default(autoincrement()) @db.UnsignedInt
+  email        String    @unique(map: "email") @db.VarChar(255)
+  user_name    String    @unique(map: "user_name") @db.VarChar(255)
+  display_name String?   @db.VarChar(255)
+  otp          String?   @db.VarChar(255)
+  otp_count    Int?
+  last_otp_at  DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  modified_at  DateTime? @db.Timestamp(0)
+  deleted_at   DateTime? @db.Timestamp(0)
 }

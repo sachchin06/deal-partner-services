@@ -23,10 +23,47 @@ exports.up = function (db) {
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    email: {
       type: "string",
       notNull: true,
       unique: true,
+    },
+    user_name: {
+      type: "string",
+      notNull: true,
+      unique: true,
+    },
+    display_name: {
+      type: "string",
+      null: true,
+    },
+    otp: {
+      type: "string",
+      null: true,
+    },
+    otp_count: {
+      type: "int",
+      null: true,
+    },
+    last_otp_at: {
+      type: "timestamp",
+      timezone: true,
+      null: true,
+    },
+    created_at: {
+      type: "timestamp",
+      timezone: true,
+      null: true,
+    },
+    modified_at: {
+      type: "timestamp",
+      timezone: true,
+      null: true,
+    },
+    deleted_at: {
+      type: "timestamp",
+      timezone: true,
+      null: true,
     },
   });
 };
