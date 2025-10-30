@@ -9,12 +9,9 @@ module.exports = async function (fastify, opts) {
         tags: ["Auth"],
         body: {
           type: "object",
-          required: ["email", "user_name"],
+          required: ["email"],
           properties: {
             email: {
-              type: "string",
-            },
-            user_name: {
               type: "string",
             },
           },
@@ -37,8 +34,8 @@ module.exports = async function (fastify, opts) {
             deleted_at: true,
           },
         });
-        if (!user || user.user_name != request.body.user_name) {
-          throw new Error("Email or username incorrect.");
+        if (!user) {
+          throw new Error("Email is incorrect.");
         }
 
         if (user.deleted_at) {
@@ -79,9 +76,21 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        //TO DO: send OTP
+        let emailParams = {
+          email: user.email,
+          subject: `Deal Partner OTP Code`,
+          message: `
+          Hello ${user.user_name}, 
+          
+          Your One-Time Password (OTP) for Deal Partner sign-in is:
 
-        reply.send({ message: "OTP sent successfully", otp: code });
+          OTP: ${code}
+          
+          This OTP is valid for 5 minutes.`,
+        };
+        await fastify.email.send(fastify, emailParams);
+
+        reply.send({ message: "OTP sent successfully" });
       } catch (error) {
         reply.send(error);
       } finally {
@@ -146,7 +155,7 @@ module.exports = async function (fastify, opts) {
 
         reply.send({
           id: user.id,
-          email: user.user_name,
+          email: user.email,
           display_name: user.display_name,
           user_name: user.user_name,
           token: token,

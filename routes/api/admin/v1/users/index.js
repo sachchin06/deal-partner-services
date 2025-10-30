@@ -7,7 +7,7 @@ module.exports = async function (fastify, opts) {
     "",
     {
       schema: {
-        tags: ["Main"],
+        tags: ["User"],
         security: [{ bearerAuth: [] }],
         query: {
           type: "object",
@@ -88,7 +88,7 @@ module.exports = async function (fastify, opts) {
     "/:id",
     {
       schema: {
-        tags: ["Main"],
+        tags: ["User"],
         security: [{ bearerAuth: [] }],
         params: {
           type: "object",
@@ -130,7 +130,7 @@ module.exports = async function (fastify, opts) {
     "/new",
     {
       schema: {
-        tags: ["Main"],
+        tags: ["User"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -187,7 +187,14 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        reply.send(item);
+        let emailParams = {
+          email: item.email,
+          subject: `Account Created for ${item.email})`,
+          message: `Hello ${item.user_name}, You are an Admin for Deal Partner`,
+        };
+        await fastify.email.send(fastify, emailParams);
+
+        reply.send({ message: "Admin User created successfully" });
       } catch (error) {
         reply.send(error);
       } finally {
@@ -200,7 +207,7 @@ module.exports = async function (fastify, opts) {
     "/edit",
     {
       schema: {
-        tags: ["Main"],
+        tags: ["User"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -261,7 +268,7 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        reply.send(item);
+        reply.send({ message: "Admin User updated successfully" });
       } catch (error) {
         reply.send(error);
       } finally {
@@ -274,7 +281,7 @@ module.exports = async function (fastify, opts) {
     "/delete",
     {
       schema: {
-        tags: ["Main"],
+        tags: ["User"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -303,7 +310,7 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        reply.send(item);
+        reply.send({ message: "Admin User deleted successfully" });
       } catch (error) {
         reply.send(error);
       } finally {
