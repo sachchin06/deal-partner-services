@@ -6,8 +6,17 @@ module.exports = async function (fastify, opts) {
     "",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            category_id: {
+              type: "integer",
+              default: 1,
+            },
+          },
+        },
         query: {
           type: "object",
           properties: {
@@ -33,7 +42,19 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
+
+        const categoryId = request.params.category_id;
+
+        const category = await fastify.prisma.categories.findUnique({
+          where: {
+            id: categoryId,
+          },
+        });
+
+        if (!category) {
+          throw new Error("This is an invalid category Id.");
+        }
 
         const page = request.query.page;
         const limit = request.query.limit;
@@ -42,49 +63,55 @@ module.exports = async function (fastify, opts) {
         const skip = (page - 1) * limit;
 
         var where = {
+          category_id: categoryId,
           deleted_at: null,
           OR: [{ name: { contains: search } }],
         };
 
         if (is_enabled == 1) {
           where = {
+            category_id: categoryId,
             deleted_at: null,
             is_enabled: true,
             OR: [{ name: { contains: search } }],
           };
         } else if (is_enabled == 0) {
           where = {
+            category_id: categoryId,
             deleted_at: null,
             is_enabled: false,
             OR: [{ name: { contains: search } }],
           };
         }
 
-        const categories = await fastify.prisma.categories.findMany({
+        const subCategories = await fastify.prisma.sub_categories.findMany({
           where: where,
           skip: skip,
           take: limit,
         });
 
-        const totalCount = await fastify.prisma.categories.count({
+        const totalCount = await fastify.prisma.sub_categories.count({
           where: where,
         });
 
-        const allCount = await fastify.prisma.categories.count({
+        const allCount = await fastify.prisma.sub_categories.count({
           where: {
+            category_id: categoryId,
             deleted_at: null,
           },
         });
 
-        const totalEnabledCount = await fastify.prisma.categories.count({
+        const totalEnabledCount = await fastify.prisma.sub_categories.count({
           where: {
+            category_id: categoryId,
             deleted_at: null,
             is_enabled: true,
           },
         });
 
-        const totalDisabledCount = await fastify.prisma.categories.count({
+        const totalDisabledCount = await fastify.prisma.sub_categories.count({
           where: {
+            category_id: categoryId,
             deleted_at: null,
             is_enabled: false,
           },
@@ -103,7 +130,7 @@ module.exports = async function (fastify, opts) {
         res.totalPages = totalPages;
         res.totalCount = totalCount;
         res.count = count;
-        res.data = categories;
+        res.data = subCategories;
 
         reply.send(res);
       } catch (error) {
@@ -118,12 +145,16 @@ module.exports = async function (fastify, opts) {
     "/:id",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
             id: {
+              type: "integer",
+              default: 1,
+            },
+            category_id: {
               type: "integer",
               default: 1,
             },
@@ -133,11 +164,13 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
+
+        const categoryId = request.params.category_id;
 
         const category = await fastify.prisma.categories.findUnique({
           where: {
-            id: request.params.id,
+            id: categoryId,
           },
         });
 
@@ -145,7 +178,17 @@ module.exports = async function (fastify, opts) {
           throw new Error("Category not found.");
         }
 
-        reply.send(category);
+        const item = await fastify.prisma.sub_categories.findUnique({
+          where: {
+            id: request.params.id,
+          },
+        });
+
+        if (item && item.category_id != categoryId) {
+          throw new Error(`Invalid category Id for Sub Category ${item.name}`);
+        }
+
+        reply.send(item);
       } catch (error) {
         reply.send(error);
       } finally {
@@ -158,8 +201,17 @@ module.exports = async function (fastify, opts) {
     "/new",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            category_id: {
+              type: "integer",
+              default: 1,
+            },
+          },
+        },
         body: {
           type: "object",
           required: ["name"],
@@ -182,22 +234,27 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
 
-        const item = await fastify.prisma.categories.findFirst({
+        const categoryId = request.params.category_id;
+
+        const category = await fastify.prisma.categories.findUnique({
           where: {
-            name: request.body.name,
+            id: categoryId,
           },
         });
-        if (item) {
-          throw new Error("The category name alredy in our system.");
+
+        if (!category) {
+          throw new Error("Category not found.");
         }
-        const category = await fastify.prisma.categories.create({
+
+        const subCategory = await fastify.prisma.sub_categories.create({
           data: {
             name: request.body.name,
             image: request.body.image || null,
             description: request.body.description || null,
             is_enabled: request.body.is_enabled,
+            category_id: categoryId,
             created_at: moment().toISOString(),
             modified_at: moment().toISOString(),
           },
@@ -207,7 +264,7 @@ module.exports = async function (fastify, opts) {
         });
 
         reply.send({
-          message: `category '${category.name}' created successfully`,
+          message: `Sub Category '${subCategory.name}' created successfully`,
         });
       } catch (error) {
         reply.send(error);
@@ -221,8 +278,17 @@ module.exports = async function (fastify, opts) {
     "/edit",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            category_id: {
+              type: "integer",
+              default: 1,
+            },
+          },
+        },
         body: {
           type: "object",
           required: ["id", "name"],
@@ -250,19 +316,41 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
 
-        const existingCategory = await fastify.prisma.categories.findUnique({
+        const categoryId = request.params.category_id;
+
+        const category = await fastify.prisma.categories.findUnique({
           where: {
-            id: request.body.id,
+            id: categoryId,
           },
         });
 
-        if (!existingCategory) {
+        if (!category) {
           throw new Error("Category not found.");
         }
 
-        const item = await fastify.prisma.categories.findFirst({
+        const existingSubCategory =
+          await fastify.prisma.sub_categories.findUnique({
+            where: {
+              id: request.body.id,
+            },
+          });
+
+        if (!existingSubCategory) {
+          throw new Error("Sub Category not found.");
+        }
+
+        if (
+          existingSubCategory &&
+          existingSubCategory.category_id != categoryId
+        ) {
+          throw new Error(
+            `Invalid category Id for Sub Category ${existingSubCategory.name}`
+          );
+        }
+
+        const item = await fastify.prisma.sub_categories.findFirst({
           where: {
             name: request.body.name,
           },
@@ -273,11 +361,11 @@ module.exports = async function (fastify, opts) {
 
         if (item && item.id != request.body.id) {
           throw new Error(
-            `The category '${request.body.name}' alredy in our system.`
+            `The Sub Category '${request.body.name}' alredy in our system.`
           );
         }
 
-        const updatedCategory = await fastify.prisma.categories.update({
+        const updatedSubCategory = await fastify.prisma.sub_categories.update({
           where: {
             id: request.body.id,
           },
@@ -286,6 +374,7 @@ module.exports = async function (fastify, opts) {
             image: request.body.image || null,
             description: request.body.description || null,
             is_enabled: request.body.is_enabled,
+            category_id: categoryId,
             modified_at: moment().toISOString(),
           },
           select: {
@@ -295,7 +384,7 @@ module.exports = async function (fastify, opts) {
         });
 
         reply.send({
-          message: `category '${updatedCategory.name}' updated successfully`,
+          message: `Sub Category '${updatedSubCategory.name}' updated successfully`,
         });
       } catch (error) {
         reply.send(error);
@@ -309,7 +398,7 @@ module.exports = async function (fastify, opts) {
     "/delete",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -324,11 +413,13 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
+
+        const categoryId = request.params.category_id;
 
         const category = await fastify.prisma.categories.findUnique({
           where: {
-            id: request.body.id,
+            id: categoryId,
           },
         });
 
@@ -336,7 +427,17 @@ module.exports = async function (fastify, opts) {
           throw new Error("Category not found.");
         }
 
-        const item = await fastify.prisma.categories.update({
+        const subCategories = await fastify.prisma.sub_categories.findUnique({
+          where: {
+            id: request.body.id,
+          },
+        });
+
+        if (!subCategories) {
+          throw new Error(`Sub Category not found.`);
+        }
+
+        const item = await fastify.prisma.sub_categories.update({
           where: {
             id: request.body.id,
           },
@@ -349,7 +450,9 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        reply.send({ message: `Category '${item.name}' deleted successfully` });
+        reply.send({
+          message: `Sub Category '${item.name}' deleted successfully`,
+        });
       } catch (error) {
         reply.send(error);
       } finally {
@@ -362,7 +465,7 @@ module.exports = async function (fastify, opts) {
     "/enable",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -377,19 +480,19 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
 
-        const category = await fastify.prisma.categories.findUnique({
+        const category = await fastify.prisma.sub_categories.findUnique({
           where: {
             id: request.body.id,
           },
         });
 
         if (!category) {
-          throw new Error("Category not found.");
+          throw new Error("Sub Category not found.");
         }
 
-        const updatedCategory = await fastify.prisma.categories.update({
+        const updatedSubCategory = await fastify.prisma.sub_categories.update({
           where: {
             id: request.body.id,
           },
@@ -406,7 +509,7 @@ module.exports = async function (fastify, opts) {
         });
 
         reply.send({
-          message: `Category ${updatedCategory.name} has been enabled.`,
+          message: `Sub Category ${updatedSubCategory.name} has been enabled.`,
         });
       } catch (error) {
         reply.send(error);
@@ -420,7 +523,7 @@ module.exports = async function (fastify, opts) {
     "/disable",
     {
       schema: {
-        tags: ["Main Category"],
+        tags: ["Sub Category"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -435,19 +538,19 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
 
-        const category = await fastify.prisma.categories.findUnique({
+        const category = await fastify.prisma.sub_categories.findUnique({
           where: {
             id: request.body.id,
           },
         });
 
         if (!category) {
-          throw new Error("Category not found.");
+          throw new Error("Sub Category not found.");
         }
 
-        const updatedCategory = await fastify.prisma.categories.update({
+        const updatedSubCategory = await fastify.prisma.sub_categories.update({
           where: {
             id: request.body.id,
           },
@@ -464,7 +567,7 @@ module.exports = async function (fastify, opts) {
         });
 
         reply.send({
-          message: `Category ${updatedCategory.name} has been disabled.`,
+          message: `Sub Category ${updatedSubCategory.name} has been disabled.`,
         });
       } catch (error) {
         reply.send(error);

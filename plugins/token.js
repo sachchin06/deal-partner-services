@@ -24,7 +24,11 @@ module.exports = fp(async function (fastify, opts) {
         },
       });
 
-      if (user.deleted_at) {
+      if (!user) {
+        throw new Error("Invalid Token or Token Expired");
+      }
+
+      if (user && user.deleted_at) {
         throw new Error("Your account is deleted.");
       }
     },

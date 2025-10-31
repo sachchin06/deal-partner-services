@@ -136,7 +136,11 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        if (user.otp != request.body.otp) {
+        if (!user) {
+          throw new Error("Invalid Email");
+        }
+
+        if (user && user.otp != request.body.otp) {
           throw new Error("Invalid OTP");
         }
 

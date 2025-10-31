@@ -15,7 +15,18 @@ module.exports = fp(async function (fastify, opts) {
       tags: [
         { name: "Auth", description: "Auth related end-points" },
         { name: "User", description: "Dashboard related end-points" },
-        { name: "Main Category", description: "Main Category related end-points" },
+        {
+          name: "Main Category",
+          description: "Main Category related end-points",
+        },
+        {
+          name: "Sub Category",
+          description: "Sub Category related end-points",
+        },
+        {
+          name: "Other",
+          description: "Other related end-points",
+        },
       ],
       servers: [
         {

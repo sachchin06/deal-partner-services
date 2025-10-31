@@ -15,7 +15,7 @@ exports.setup = function (options, seedLink) {
 };
 
 exports.up = function (db) {
-  return db.createTable("categories", {
+  return db.createTable("sub_categories", {
     id: {
       type: "int",
       unsigned: true,
@@ -34,6 +34,20 @@ exports.up = function (db) {
     image: {
       type: "text",
       null: true,
+    },
+    category_id: {
+      type: "int",
+      notNull: true,
+      unsigned: true,
+      foreignKey: {
+        name: "categories_sub_categories_category_id_foreign",
+        table: "categories",
+        rules: {
+          onDelete: "CASCADE",
+          onUpdate: "RESTRICT",
+        },
+        mapping: "id",
+      },
     },
     is_enabled: {
       type: "boolean",
@@ -58,7 +72,7 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return db.dropTable("categories");
+  return db.dropTable("sub_categories");
 };
 
 exports._meta = {
