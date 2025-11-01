@@ -24,6 +24,10 @@ module.exports = fp(async function (fastify, opts) {
           description: "Sub Category related end-points",
         },
         {
+          name: "Sub Sub Category",
+          description: "Sub Sub Category related end-points",
+        },
+        {
           name: "Other",
           description: "Other related end-points",
         },

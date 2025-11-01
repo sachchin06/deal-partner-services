@@ -27,28 +27,48 @@ model users {
 }
 
 model categories {
-  id             Int              @id @default(autoincrement()) @db.UnsignedInt
-  name           String           @db.VarChar(255)
-  description    String?          @db.Text
-  image          String?          @db.Text
-  is_enabled     Boolean?         @default(false)
-  created_at     DateTime?        @db.Timestamp(0)
-  modified_at    DateTime?        @db.Timestamp(0)
-  deleted_at     DateTime?        @db.Timestamp(0)
-  sub_categories sub_categories[]
+  id                 Int                  @id @default(autoincrement()) @db.UnsignedInt
+  name               String               @db.VarChar(255)
+  description        String?              @db.Text
+  image              String?              @db.Text
+  is_enabled         Boolean?             @default(false)
+  created_at         DateTime?            @db.Timestamp(0)
+  modified_at        DateTime?            @db.Timestamp(0)
+  deleted_at         DateTime?            @db.Timestamp(0)
+  sub_categories     sub_categories[]
+  sub_sub_categories sub_sub_categories[]
 }
 
 model sub_categories {
-  id          Int        @id @default(autoincrement()) @db.UnsignedInt
-  name        String     @db.VarChar(255)
-  description String?    @db.Text
-  image       String?    @db.Text
-  category_id Int        @db.UnsignedInt
-  is_enabled  Boolean?   @default(false)
-  created_at  DateTime?  @db.Timestamp(0)
-  modified_at DateTime?  @db.Timestamp(0)
-  deleted_at  DateTime?  @db.Timestamp(0)
-  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "categories_sub_categories_category_id_foreign")
+  id                 Int                  @id @default(autoincrement()) @db.UnsignedInt
+  name               String               @db.VarChar(255)
+  description        String?              @db.Text
+  image              String?              @db.Text
+  category_id        Int                  @db.UnsignedInt
+  is_enabled         Boolean?             @default(false)
+  created_at         DateTime?            @db.Timestamp(0)
+  modified_at        DateTime?            @db.Timestamp(0)
+  deleted_at         DateTime?            @db.Timestamp(0)
+  categories         categories           @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "categories_sub_categories_category_id_foreign")
+  sub_sub_categories sub_sub_categories[]
 
   @@index([category_id], map: "categories_sub_categories_category_id_foreign")
+}
+
+model sub_sub_categories {
+  id              Int            @id @default(autoincrement()) @db.UnsignedInt
+  name            String         @db.VarChar(255)
+  description     String?        @db.Text
+  image           String?        @db.Text
+  category_id     Int            @db.UnsignedInt
+  sub_category_id Int            @db.UnsignedInt
+  is_enabled      Boolean?       @default(false)
+  created_at      DateTime?      @db.Timestamp(0)
+  modified_at     DateTime?      @db.Timestamp(0)
+  deleted_at      DateTime?      @db.Timestamp(0)
+  categories      categories     @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "categories_sub_sub_categories_category_id_foreign")
+  sub_categories  sub_categories @relation(fields: [sub_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sub_categories_sub_sub_categories_sub_category_id_foreign")
+
+  @@index([category_id], map: "categories_sub_sub_categories_category_id_foreign")
+  @@index([sub_category_id], map: "sub_categories_sub_sub_categories_sub_category_id_foreign")
 }
