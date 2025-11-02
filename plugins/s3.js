@@ -1,7 +1,9 @@
 "use strict";
 const AWS = require("aws-sdk");
+const fp = require("fastify-plugin");
+const moment = require("moment");
 
-module.exports = async function (fastify, opts) {
+module.exports = fp(async function (fastify, opts) {
   const AWS_ACCESS_KEY_ID = fastify.config.AWS_ACCESS_KEY_ID;
   const AWS_SECRET_ACCESS_KEY = fastify.config.AWS_SECRET_ACCESS_KEY;
   const AWS_REGION = fastify.config.AWS_REGION;
@@ -17,23 +19,20 @@ module.exports = async function (fastify, opts) {
   });
 
   fastify.register(require("fastify-multipart"));
-
-  fastify.post("/upload", async function (request, reply) {
-    const data = await request.file();
+  fastify.decorate("uploadToS3", async (file, modelName) => {
+    const fileName = `${modelName}_${moment().format("x")}_${file.filename}`;
 
     const params = {
       Bucket: BUCKET_NAME,
-      Key: data.filename,
-      Body: data.file,
+      Key: fileName,
+      Body: file.file,
     };
 
     try {
       const uploadResult = await s3.upload(params).promise();
-      reply.send({ success: true, data: uploadResult });
+      return { success: true, data: uploadResult };
     } catch (error) {
-      reply.send({ success: false, error: error.message });
-    } finally {
-      // Clean up the local file
+      throw new Error(error.message);
     }
   });
-};
+});
