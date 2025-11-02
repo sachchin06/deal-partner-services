@@ -139,13 +139,53 @@ module.exports = async function (fastify, opts) {
           where: {
             id: request.params.id,
           },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            image: true,
+            is_enabled: true,
+            sub_categories: {
+              select: {
+                id: true,
+                name: true,
+                _count: {
+                  select: {
+                    sub_sub_categories: true,
+                  },
+                },
+              },
+            },
+            _count: {
+              select: {
+                sub_categories: true,
+                items: true,
+              },
+            },
+          },
         });
 
         if (!category) {
           throw new Error("Category not found.");
         }
 
-        reply.send(category);
+        const totalSubSubcategoryCount = category.sub_categories.reduce(
+          (acc, subcategory) => acc + subcategory._count.sub_sub_categories,
+          0
+        );
+
+        const res = {
+          id: category.id,
+          name: category.name,
+          description: category.description,
+          image: category.image,
+          is_enabled: category.is_enabled,
+          total_sub_category_count: category._count.sub_categories,
+          total_sub_sub_category_Count: totalSubSubcategoryCount,
+          total_items_count: category._count.items,
+        };
+
+        reply.send(res);
       } catch (error) {
         reply.send(error);
       } finally {

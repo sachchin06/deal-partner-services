@@ -182,13 +182,38 @@ module.exports = async function (fastify, opts) {
           where: {
             id: request.params.id,
           },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            image: true,
+            is_enabled: true,
+            category_id: true,
+            _count: {
+              select: {
+                sub_sub_categories: true,
+                items: true,
+              },
+            },
+          },
         });
 
         if (item && item.category_id != categoryId) {
           throw new Error(`Invalid category Id for Sub Category ${item.name}`);
         }
 
-        reply.send(item);
+        const res = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          image: item.image,
+          category_id: item.category_id,
+          is_enabled: item.is_enabled,
+          total_sub_sub_category_Count: item._count.sub_sub_categories,
+          total_items_count: item._count.items,
+        };
+
+        reply.send(res);
       } catch (error) {
         reply.send(error);
       } finally {

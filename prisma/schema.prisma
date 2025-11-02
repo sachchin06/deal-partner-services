@@ -35,6 +35,7 @@ model categories {
   created_at         DateTime?            @db.Timestamp(0)
   modified_at        DateTime?            @db.Timestamp(0)
   deleted_at         DateTime?            @db.Timestamp(0)
+  items              items[]
   sub_categories     sub_categories[]
   sub_sub_categories sub_sub_categories[]
 }
@@ -49,6 +50,7 @@ model sub_categories {
   created_at         DateTime?            @db.Timestamp(0)
   modified_at        DateTime?            @db.Timestamp(0)
   deleted_at         DateTime?            @db.Timestamp(0)
+  items              items[]
   categories         categories           @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "categories_sub_categories_category_id_foreign")
   sub_sub_categories sub_sub_categories[]
 
@@ -66,9 +68,93 @@ model sub_sub_categories {
   created_at      DateTime?      @db.Timestamp(0)
   modified_at     DateTime?      @db.Timestamp(0)
   deleted_at      DateTime?      @db.Timestamp(0)
+  items           items[]
   categories      categories     @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "categories_sub_sub_categories_category_id_foreign")
   sub_categories  sub_categories @relation(fields: [sub_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sub_categories_sub_sub_categories_sub_category_id_foreign")
 
   @@index([category_id], map: "categories_sub_sub_categories_category_id_foreign")
   @@index([sub_category_id], map: "sub_categories_sub_sub_categories_sub_category_id_foreign")
+}
+
+model item_embeds {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  title       String    @db.VarChar(255)
+  html        String?   @db.Text
+  item_id     Int       @db.UnsignedInt
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+  items       items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_item_embeds_id_foreign")
+
+  @@index([item_id], map: "items_item_embeds_id_foreign")
+}
+
+model item_features {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  name        String    @db.VarChar(255)
+  icon_url    String?   @db.Text
+  item_id     Int       @db.UnsignedInt
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+  items       items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_item_features_id_foreign")
+
+  @@index([item_id], map: "items_item_features_id_foreign")
+}
+
+model item_images {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  image_url   String?   @db.Text
+  item_id     Int       @db.UnsignedInt
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+  items       items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_item_images_id_foreign")
+
+  @@index([item_id], map: "items_item_images_id_foreign")
+}
+
+model item_properties {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  key         String    @db.VarChar(255)
+  value       String?   @db.Text
+  item_id     Int       @db.UnsignedInt
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+  items       items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_item_properties_id_foreign")
+
+  @@index([item_id], map: "items_item_properties_id_foreign")
+}
+
+model items {
+  id                  Int                 @id @default(autoincrement()) @db.UnsignedInt
+  name                String              @db.VarChar(255)
+  description         String?             @db.Text
+  category_id         Int                 @db.UnsignedInt
+  sub_category_id     Int?                @db.UnsignedInt
+  sub_sub_category_id Int?                @db.UnsignedInt
+  price_lkr           Float?
+  price_usd           Float?
+  per_unit            Float?
+  price_type          String?             @db.VarChar(255)
+  discount_percent    String?             @db.VarChar(255)
+  is_featured         Boolean?            @default(false)
+  is_enabled          Boolean?            @default(false)
+  hot_deal_end_at     DateTime?           @db.Timestamp(0)
+  is_sold             Boolean?            @default(false)
+  created_at          DateTime?           @db.Timestamp(0)
+  modified_at         DateTime?           @db.Timestamp(0)
+  deleted_at          DateTime?           @db.Timestamp(0)
+  item_embeds         item_embeds[]
+  item_features       item_features[]
+  item_images         item_images[]
+  item_properties     item_properties[]
+  categories          categories          @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_categories_category_id_foreign")
+  sub_categories      sub_categories?     @relation(fields: [sub_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_sub_categories_category_id_foreign")
+  sub_sub_categories  sub_sub_categories? @relation(fields: [sub_sub_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_sub_sub_categories_category_id_foreign")
+
+  @@index([category_id], map: "items_categories_category_id_foreign")
+  @@index([sub_category_id], map: "items_sub_categories_category_id_foreign")
+  @@index([sub_sub_category_id], map: "items_sub_sub_categories_category_id_foreign")
 }

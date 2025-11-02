@@ -222,6 +222,20 @@ module.exports = async function (fastify, opts) {
           where: {
             id: request.params.id,
           },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            image: true,
+            is_enabled: true,
+            category_id: true,
+            sub_category_id: true,
+            _count: {
+              select: {
+                items: true,
+              },
+            },
+          },
         });
 
         if (item && item.category_id != categoryId) {
@@ -236,7 +250,18 @@ module.exports = async function (fastify, opts) {
           );
         }
 
-        reply.send(item);
+        const res = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          image: item.image,
+          category_id: item.category_id,
+          sub_category_id: item.sub_category_id,
+          is_enabled: item.is_enabled,
+          total_items_count: item._count.items,
+        };
+
+        reply.send(res);
       } catch (error) {
         reply.send(error);
       } finally {
