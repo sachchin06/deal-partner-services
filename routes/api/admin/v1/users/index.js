@@ -189,8 +189,18 @@ module.exports = async function (fastify, opts) {
 
         let emailParams = {
           email: item.email,
-          subject: `Account Created for ${item.email})`,
-          message: `Hello ${item.user_name}, You are an Admin for Deal Partner`,
+          subject: `Welcome to Deal Partner - Admin Account Created`,
+          message: `Dear ${item.user_name},
+
+          We are pleased to inform you that your admin account for Deal Partner has been successfully created.
+
+          If you have any questions or require assistance, please don't hesitate to contact our support team at support@dealpartner.com.
+
+          Welcome aboard, and thank you for being part of Deal Partner.
+
+          Best regards,
+          The Deal Partner Team
+          `,
         };
         await fastify.email.send(fastify, emailParams);
 

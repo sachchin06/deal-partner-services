@@ -158,3 +158,12 @@ model items {
   @@index([sub_category_id], map: "items_sub_categories_category_id_foreign")
   @@index([sub_sub_category_id], map: "items_sub_sub_categories_category_id_foreign")
 }
+
+model advertisements {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  image_url   String?   @db.Text
+  is_enabled  Boolean?  @default(false)
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
