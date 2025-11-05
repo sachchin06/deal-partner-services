@@ -681,6 +681,7 @@ db-migrate@^0.11.14:
     fastify-multipart "^5.4.0"
     fastify-plugin "^4.0.0"
     multer-s3 "2.9.0"
+    nodemailer "^7.0.10"
     prisma "^5.18.0"
     resend "3.2.0"
 
@@ -1793,6 +1794,11 @@ node-fs@~0.1.5:
   version "0.1.7"
   resolved "https://registry.npmjs.org/node-fs/-/node-fs-0.1.7.tgz"
   integrity sha512-XqDBlmUKgDGe76+lZ/0sRBF3XW2vVcK07+ZPvdpUTK8jrvtPahUd0aBqJ9+ZjB01ANjZLuvK3O/eoMVmz62rpA==
+
+nodemailer@^7.0.10:
+  version "7.0.10"
+  resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-7.0.10.tgz"
+  integrity sha512-Us/Se1WtT0ylXgNFfyFSx4LElllVLJXQjWi2Xz17xWw7amDKO2MLtFnVp1WACy7GkVGs+oBlRopVNUzlrGSw1w==
 
 nopt@^7.2.1:
   version "7.2.1"
