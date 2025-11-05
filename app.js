@@ -53,13 +53,10 @@ const options = {
 module.exports.options = {};
 
 module.exports = async function (fastify, opts) {
-  // Place here your custom code!
+ 
 
-  // Do not touch the following lines
-
-  // This loads all plugins defined in plugins
-  // those should be support plugins that are reused
-  // through your application
+  // loads all plugins defined in plugins
+  // support plugins that are reused application
   fastify.register(fastifyEnv, options).after((err) => {
     if (err) {
       console.log(err);
@@ -70,8 +67,8 @@ module.exports = async function (fastify, opts) {
       options: Object.assign({}, opts),
     });
 
-    // This loads all plugins defined in routes
-    // define your routes in one of these
+  
+    // define routes
     fastify.register(AutoLoad, {
       dir: path.join(__dirname, "routes"),
       options: Object.assign({}, opts),

@@ -33,7 +33,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const page = request.query.page;
         const limit = request.query.limit;
@@ -130,7 +130,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const advertisement = await fastify.prisma.advertisements.findUnique({
           where: {
@@ -180,7 +180,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const item = await fastify.prisma.advertisements.create({
           data: {
@@ -228,7 +228,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const existingItem = await fastify.prisma.advertisements.findUnique({
           where: {
@@ -281,7 +281,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const existingItem = await fastify.prisma.advertisements.findUnique({
           where: {
@@ -332,7 +332,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const existingItem = await fastify.prisma.advertisements.findUnique({
           where: {
@@ -384,7 +384,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const existingItem = await fastify.prisma.advertisements.findUnique({
           where: {

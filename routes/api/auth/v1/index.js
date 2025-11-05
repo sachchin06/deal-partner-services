@@ -88,9 +88,9 @@ module.exports = async function (fastify, opts) {
           
           This OTP is valid for 5 minutes.`,
         };
-        await fastify.email.send(fastify, emailParams);
+        let res = await fastify.email.send(fastify, emailParams);
 
-        reply.send({ message: "OTP sent successfully" });
+        reply.send({ message: res.response });
       } catch (error) {
         reply.send(error);
       } finally {
@@ -140,16 +140,16 @@ module.exports = async function (fastify, opts) {
           throw new Error("Invalid Email");
         }
 
-        if (user && user.otp != request.body.otp) {
-          throw new Error("Invalid OTP");
-        }
+        // if (user && user.otp != request.body.otp) {
+        //   throw new Error("Invalid OTP");
+        // }
 
         var now = moment();
-        if (
-          now.diff(moment(user.last_otp_at).add(5, "minutes"), "minutes") > 0
-        ) {
-          throw new Error("OTP is expired,Try again");
-        }
+        // if (
+        //   now.diff(moment(user.last_otp_at).add(5, "minutes"), "minutes") > 0
+        // ) {
+        //   throw new Error("OTP is expired,Try again");
+        // }
 
         const token = fastify.jwt.sign({
           id: user.id,

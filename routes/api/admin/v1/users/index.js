@@ -30,7 +30,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        // await fastify.token.isAuth(request);
+        await fastify.token.isAuth(request);
 
         const page = request.query.page;
         const limit = request.query.limit;
