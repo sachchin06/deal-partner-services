@@ -167,3 +167,14 @@ model advertisements {
   modified_at DateTime? @db.Timestamp(0)
   deleted_at  DateTime? @db.Timestamp(0)
 }
+
+model why {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  icon_url    String?   @db.Text
+  is_enabled  Boolean?  @default(false)
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}

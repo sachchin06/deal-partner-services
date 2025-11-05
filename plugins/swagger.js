@@ -32,6 +32,14 @@ module.exports = fp(async function (fastify, opts) {
           description: "Item related end-points",
         },
         {
+          name: "Advertisement",
+          description: "Advertisement related end-points",
+        },
+        {
+          name: "Why",
+          description: "Why Section related end-points",
+        },
+        {
           name: "Data",
           description: "Data related end-points",
         },
