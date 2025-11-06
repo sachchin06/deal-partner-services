@@ -88,9 +88,9 @@ module.exports = async function (fastify, opts) {
           
           This OTP is valid for 5 minutes.`,
         };
-        let res = await fastify.email.send(fastify, emailParams);
+        let res = await fastify.emailViaNodemailer.send(fastify, emailParams);
 
-        reply.send({ message: res.response });
+        reply.send({ message: res.message, info: res.info, preview: res.preview });
       } catch (error) {
         reply.send(error);
       } finally {
