@@ -44,6 +44,10 @@ module.exports = fp(async function (fastify, opts) {
           description: "Faqs Section related end-points",
         },
         {
+          name: "Hero",
+          description: "Hero Section related end-points",
+        },
+        {
           name: "Data",
           description: "Data related end-points",
         },

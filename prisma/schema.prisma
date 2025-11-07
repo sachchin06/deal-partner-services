@@ -188,3 +188,14 @@ model faqs {
   modified_at DateTime? @db.Timestamp(0)
   deleted_at  DateTime? @db.Timestamp(0)
 }
+
+model heros {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  title       String    @db.Text
+  sub_title   String?   @db.Text
+  image_url   String?   @db.Text
+  is_enabled  Boolean?  @default(false)
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
