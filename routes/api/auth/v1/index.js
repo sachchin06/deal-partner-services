@@ -90,7 +90,11 @@ module.exports = async function (fastify, opts) {
         };
         let res = await fastify.emailViaNodemailer.send(fastify, emailParams);
 
-        reply.send({ message: res.message, info: res.info, preview: res.preview });
+        reply.send({
+          message: res.message,
+          info: res.info,
+          preview: res.preview,
+        });
       } catch (error) {
         reply.send(error);
       } finally {

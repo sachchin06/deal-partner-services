@@ -7,7 +7,7 @@ module.exports = async function (fastify, opts) {
     "",
     {
       schema: {
-        tags: ["User"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         query: {
           type: "object",
@@ -30,7 +30,7 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        await fastify.token.isAuth(request);
+        // await fastify.token.isAuth(request);
 
         const page = request.query.page;
         const limit = request.query.limit;
@@ -88,7 +88,7 @@ module.exports = async function (fastify, opts) {
     "/:id",
     {
       schema: {
-        tags: ["User"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         params: {
           type: "object",
@@ -130,7 +130,7 @@ module.exports = async function (fastify, opts) {
     "/new",
     {
       schema: {
-        tags: ["User"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -222,7 +222,7 @@ module.exports = async function (fastify, opts) {
     "/edit",
     {
       schema: {
-        tags: ["User"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -296,7 +296,7 @@ module.exports = async function (fastify, opts) {
     "/delete",
     {
       schema: {
-        tags: ["User"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",

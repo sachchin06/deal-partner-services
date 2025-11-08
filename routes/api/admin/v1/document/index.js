@@ -6,7 +6,7 @@ module.exports = async function (fastify, opts) {
     "/upload",
     {
       schema: {
-        tags: ["Other"],
+        tags: ["Image Upload"],
         //  consumes: ["multipart/form-data"],
         query: {
           type: "object",
