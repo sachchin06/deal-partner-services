@@ -14,46 +14,21 @@ module.exports = fp(async function (fastify, opts) {
       schemes: ["http", "https"],
       tags: [
         { name: "Auth", description: "Auth related end-points" },
-        { name: "User", description: "Dashboard related end-points" },
         {
-          name: "Main Category",
-          description: "Main Category related end-points",
-        },
-        {
-          name: "Sub Category",
-          description: "Sub Category related end-points",
-        },
-        {
-          name: "Sub Sub Category",
-          description: "Sub Sub Category related end-points",
-        },
-        {
-          name: "Item",
-          description: "Item related end-points",
-        },
-        {
-          name: "Advertisement",
-          description: "Advertisement related end-points",
-        },
-        {
-          name: "Why",
-          description: "Why Section related end-points",
-        },
-        {
-          name: "Faqs",
-          description: "Faqs Section related end-points",
-        },
-        {
-          name: "Hero",
-          description: "Hero Section related end-points",
+          name: "Admin Dashboard",
+          description: "Admin Dashboard related end-points",
         },
         {
           name: "Data",
           description: "Data related end-points",
         },
         {
-          name: "Other",
-          description: "Other related end-points",
+          name: "Image Upload",
+          description: "Image Upload related end-points",
+        },
+        {
+          name: "End User",
+          description: "End User related end-points",
         },
       ],
       servers: [

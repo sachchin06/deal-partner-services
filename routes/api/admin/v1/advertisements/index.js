@@ -6,7 +6,7 @@ module.exports = async function (fastify, opts) {
     "",
     {
       schema: {
-        tags: ["Advertisement"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         query: {
           type: "object",
@@ -162,7 +162,7 @@ module.exports = async function (fastify, opts) {
     "/new",
     {
       schema: {
-        tags: ["Advertisement"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -206,7 +206,7 @@ module.exports = async function (fastify, opts) {
     "/edit",
     {
       schema: {
-        tags: ["Advertisement"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -266,7 +266,7 @@ module.exports = async function (fastify, opts) {
     "/delete",
     {
       schema: {
-        tags: ["Advertisement"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -317,7 +317,7 @@ module.exports = async function (fastify, opts) {
     "/enable",
     {
       schema: {
-        tags: ["Advertisement"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -369,7 +369,7 @@ module.exports = async function (fastify, opts) {
     "/disable",
     {
       schema: {
-        tags: ["Advertisement"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",

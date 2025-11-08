@@ -6,7 +6,7 @@ module.exports = async function (fastify, opts) {
     "",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         query: {
           type: "object",
@@ -118,7 +118,7 @@ module.exports = async function (fastify, opts) {
     "/:id",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         params: {
           type: "object",
@@ -166,7 +166,7 @@ module.exports = async function (fastify, opts) {
     "/new",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -214,7 +214,7 @@ module.exports = async function (fastify, opts) {
     "/edit",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -277,7 +277,7 @@ module.exports = async function (fastify, opts) {
     "/delete",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -328,7 +328,7 @@ module.exports = async function (fastify, opts) {
     "/enable",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
@@ -380,7 +380,7 @@ module.exports = async function (fastify, opts) {
     "/disable",
     {
       schema: {
-        tags: ["Faqs"],
+        tags: ["Admin Dashboard"],
         security: [{ bearerAuth: [] }],
         body: {
           type: "object",
