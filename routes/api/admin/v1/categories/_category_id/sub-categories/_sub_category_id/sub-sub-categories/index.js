@@ -228,8 +228,8 @@ module.exports = async function (fastify, opts) {
             description: true,
             image: true,
             is_enabled: true,
-            category_id: true,
-            sub_category_id: true,
+            categories: true,
+            sub_categories: true,
             _count: {
               select: {
                 items: true,
@@ -238,13 +238,13 @@ module.exports = async function (fastify, opts) {
           },
         });
 
-        if (item && item.category_id != categoryId) {
+        if (item && item.categories.id != categoryId) {
           throw new Error(
             `Invalid category Id for Sub Sub Category ${item.name}`
           );
         }
 
-        if (item && item.sub_category_id != subCategoryId) {
+        if (item && item.sub_categories.id != subCategoryId) {
           throw new Error(
             `Invalid Sub Category Id for Sub Sub Category ${item.name}`
           );
@@ -255,8 +255,10 @@ module.exports = async function (fastify, opts) {
           name: item.name,
           description: item.description,
           image: item.image,
-          category_id: item.category_id,
-          sub_category_id: item.sub_category_id,
+          category_id: item.categories.id,
+          category_name: item.categories.name,
+          sub_category_id: item.sub_categories.id,
+          sub_category_name: item.sub_categories.name,
           is_enabled: item.is_enabled,
           total_items_count: item._count.items,
         };

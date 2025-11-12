@@ -202,14 +202,9 @@ module.exports = async function (fastify, opts) {
           The Deal Partner Team
           `,
         };
+        await fastify.email.send(fastify, emailParams);
 
-        const res = await fastify.emailViaNodemailer.send(fastify, emailParams);
-
-        reply.send({
-          message: res.message,
-          info: res.info,
-          preview: res.preview,
-        });
+        reply.send({ message: "Admin User created successfully" });
       } catch (error) {
         reply.send(error);
       } finally {

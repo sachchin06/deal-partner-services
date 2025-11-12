@@ -27,6 +27,18 @@ module.exports = async function (fastify, opts) {
               type: "integer",
               default: -1, // -1 for all, 1 for enabled, 0 for disabled
             },
+            is_featured: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Featured, 0 for Not Featured
+            },
+            is_discount: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Discount, 0 for Not Discount
+            },
+            is_hotdeal: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Hotdeal, 0 for Not Hotdeal
+            },
             category_id: {
               type: "integer",
               default: null,
@@ -50,6 +62,9 @@ module.exports = async function (fastify, opts) {
         const limit = request.query.limit;
         const search = request.query.search;
         const is_enabled = request.query.is_enabled;
+        const is_featured = request.query.is_featured;
+        const is_discount = request.query.is_discount;
+        const is_hotdeal = request.query.is_hotdeal;
         const category_id = request.query.category_id;
         const sub_category_id = request.query.sub_category_id;
         const sub_sub_category_id = request.query.sub_sub_category_id;
@@ -67,6 +82,28 @@ module.exports = async function (fastify, opts) {
           where.is_enabled = true;
         } else if (is_enabled == 0) {
           where.is_enabled = false;
+        }
+
+        if (is_featured === 1) {
+          where.is_featured = true;
+        } else if (is_featured === 0) {
+          where.is_featured = false;
+        }
+
+        if (is_discount === 1) {
+          where.discount_percent = {
+            not: null,
+          };
+        } else if (is_discount === 0) {
+          where.discount_percent = null;
+        }
+
+        if (is_hotdeal === 1) {
+          where.hot_deal_end_at = {
+            not: null,
+          };
+        } else if (is_hotdeal === 0) {
+          where.hot_deal_end_at = null;
         }
 
         if (category_id) {
@@ -166,6 +203,198 @@ module.exports = async function (fastify, opts) {
   );
 
   fastify.get(
+    "/getAll",
+    {
+      schema: {
+        tags: ["Admin Dashboard"],
+        security: [{ bearerAuth: [] }],
+        query: {
+          type: "object",
+          properties: {
+            page: {
+              type: "integer",
+              default: 1,
+            },
+            limit: {
+              type: "integer",
+              default: 10,
+            },
+            search: {
+              type: "string",
+              default: "",
+            },
+            is_enabled: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for enabled, 0 for disabled
+            },
+            is_featured: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Featured, 0 for Not Featured
+            },
+            is_discount: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Discount, 0 for Not Discount
+            },
+            is_hotdeal: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Hotdeal, 0 for Not Hotdeal
+            },
+            category_ids: {
+              type: "string",
+              default: "[]",
+            },
+            sub_category_ids: {
+              type: "string",
+              default: "[]",
+            },
+            sub_sub_category_ids: {
+              type: "string",
+              default: "[]",
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const {
+          page,
+          limit,
+          search,
+          is_enabled,
+          is_featured,
+          is_discount,
+          is_hotdeal,
+        } = request.query;
+
+        const skip = (page - 1) * limit;
+
+        const category_ids = JSON.parse(request.query.category_ids);
+        const sub_category_ids = JSON.parse(request.query.sub_category_ids);
+        const sub_sub_category_ids = JSON.parse(
+          request.query.sub_sub_category_ids
+        );
+
+        let where = {
+          deleted_at: null,
+          OR: [{ name: { contains: search } }],
+        };
+
+        if (is_enabled === 1) {
+          where.is_enabled = true;
+        } else if (is_enabled === 0) {
+          where.is_enabled = false;
+        }
+
+        if (is_featured === 1) {
+          where.is_featured = true;
+        } else if (is_featured === 0) {
+          where.is_featured = false;
+        }
+
+        if (is_discount === 1) {
+          where.discount_percent = {
+            not: null,
+          };
+        } else if (is_discount === 0) {
+          where.discount_percent = null;
+        }
+
+        if (is_hotdeal === 1) {
+          where.hot_deal_end_at = {
+            not: null,
+          };
+        } else if (is_hotdeal === 0) {
+          where.hot_deal_end_at = null;
+        }
+
+        if (category_ids.length > 0) {
+          where.category_id = { in: category_ids };
+        }
+
+        const categoryCount = await fastify.prisma.items.count({
+          where: where,
+        });
+
+        if (sub_category_ids.length > 0) {
+          where.sub_category_id = { in: sub_category_ids };
+        }
+
+        const subCategoryCount = await fastify.prisma.items.count({
+          where: where,
+        });
+
+        if (sub_sub_category_ids.length > 0) {
+          where.sub_sub_category_id = { in: sub_sub_category_ids };
+        }
+
+        const subSubCategoryCount = await fastify.prisma.items.count({
+          where: where,
+        });
+
+        const totalCount = await fastify.prisma.items.count({
+          where: where,
+        });
+
+        const allCount = await fastify.prisma.items.count({
+          where: { deleted_at: null },
+        });
+
+        const totalEnabledCount = await fastify.prisma.items.count({
+          where: {
+            ...where,
+            is_enabled: true,
+          },
+        });
+
+        const totalDisabledCount = await fastify.prisma.items.count({
+          where: {
+            ...where,
+            is_enabled: false,
+          },
+        });
+
+        const items = await fastify.prisma.items.findMany({
+          where: where,
+          skip: skip,
+          take: limit,
+          include: {
+            item_properties: true,
+            item_features: true,
+            item_images: true,
+            item_embeds: true,
+          },
+        });
+
+        var count = {};
+        count.all = allCount;
+        count.enabled = totalEnabledCount;
+        count.disabled = totalDisabledCount;
+        count.categoryCount = categoryCount;
+        count.subCategoryCount = subCategoryCount;
+        count.subSubCategoryCount = subSubCategoryCount;
+
+        const totalPages = Math.ceil(totalCount / limit);
+
+        const res = {
+          page: page,
+          limit: limit,
+          totalPages: totalPages,
+          totalCount: totalCount,
+          count: count,
+          data: items,
+        };
+
+        reply.send(res);
+      } catch (error) {
+        reply.send(error);
+      } finally {
+        await fastify.prisma.$disconnect();
+      }
+    }
+  );
+
+  fastify.get(
     "/:id",
     {
       schema: {
@@ -191,6 +420,9 @@ module.exports = async function (fastify, opts) {
             id: request.params.id,
           },
           include: {
+            categories: true,
+            sub_categories: true,
+            sub_sub_categories: true,
             item_properties: true,
             item_features: true,
             item_images: true,
@@ -202,7 +434,33 @@ module.exports = async function (fastify, opts) {
           throw new Error("Item not found.");
         }
 
-        reply.send(item);
+        const res = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price_lkr: item.price_lkr,
+          price_usd: item.price_usd,
+          per_unit: item.per_unit,
+          price_type: item.price_type,
+          discount_percent: item.discount_percent,
+          is_featured: item.is_featured,
+          is_enabled: item.is_enabled,
+          hot_deal_end_at: item.hot_deal_end_at,
+          is_sold: item.is_sold,
+          category_id: item.categories.id,
+          category_name: item.categories.name,
+          sub_category_id: item.sub_categories.id,
+          sub_category_name: item.sub_categories.name,
+          sub_sub_category_id: item.sub_sub_categories.id,
+          sub_sub_category_name: item.sub_sub_categories.name,
+          item_properties: item.item_properties,
+          item_features: item.item_features,
+          item_images: item.item_images,
+          item_embeds: item.item_embeds,
+          created_at: item.created_at,
+        };
+
+        reply.send(res);
       } catch (error) {
         reply.send({
           error: error.message,
