@@ -199,3 +199,13 @@ model heros {
   modified_at DateTime? @db.Timestamp(0)
   deleted_at  DateTime? @db.Timestamp(0)
 }
+
+model who {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  key         String    @db.VarChar(255)
+  value       String?   @db.Text
+  is_enabled  Boolean?  @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}

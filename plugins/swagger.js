@@ -30,6 +30,7 @@ module.exports = fp(async function (fastify, opts) {
           name: "End User",
           description: "End User related end-points",
         },
+        { name: "Seed", description: "Seed related end-points" },
       ],
       servers: [
         {
