@@ -83,14 +83,6 @@ module.exports = async function (fastify, opts) {
           where.discount_percent = null;
         }
 
-        if (is_discount === 1) {
-          where.discount_percent = {
-            not: null,
-          };
-        } else if (is_discount === 0) {
-          where.discount_percent = null;
-        }
-
         if (is_hotdeal === 1) {
           where.hot_deal_end_at = {
             not: null,
