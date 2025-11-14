@@ -3,7 +3,7 @@ const moment = require("moment");
 
 module.exports = async function (fastify, opts) {
   fastify.get(
-    "/getAll",
+    "/all",
     {
       schema: {
         tags: ["Admin Dashboard"],
@@ -40,10 +40,10 @@ module.exports = async function (fastify, opts) {
         // Authenticate the user
         // await fastify.token.isAuth(request);
 
-        const page = request.query.page || 1;
-        const limit = request.query.limit || 10;
-        const search = request.query.search || "";
-        const is_enabled = request.query.is_enabled || -1;
+       const page = request.query.page;
+       const limit = request.query.limit;
+       const search = request.query.search;
+       const is_enabled = request.query.is_enabled;
         const category_ids = JSON.parse(request.query.category_ids);
 
         const skip = (page - 1) * limit;

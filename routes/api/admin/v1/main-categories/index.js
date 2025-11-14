@@ -3,7 +3,7 @@ const moment = require("moment");
 
 module.exports = async function (fastify, opts) {
   fastify.get(
-    "/getAll",
+    "/all",
     {
       schema: {
         tags: ["Admin Dashboard"],
