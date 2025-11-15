@@ -39,6 +39,10 @@ module.exports = async function (fastify, opts) {
               type: "integer",
               default: -1, // -1 for all, 1 for Hotdeal, 0 for Not Hotdeal
             },
+            is_sold: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Sold, 0 for Not Un Sold
+            },
             category_id: {
               type: "integer",
               default: null,
@@ -65,6 +69,7 @@ module.exports = async function (fastify, opts) {
         const is_featured = request.query.is_featured;
         const is_discount = request.query.is_discount;
         const is_hotdeal = request.query.is_hotdeal;
+        const is_sold = request.query.is_sold;
         const category_id = request.query.category_id;
         const sub_category_id = request.query.sub_category_id;
         const sub_sub_category_id = request.query.sub_sub_category_id;
@@ -104,6 +109,12 @@ module.exports = async function (fastify, opts) {
           };
         } else if (is_hotdeal === 0) {
           where.hot_deal_end_at = null;
+        }
+
+        if (is_sold === 1) {
+          where.is_sold = true;
+        } else if (is_sold === 0) {
+          where.is_sold = false;
         }
 
         if (category_id) {
@@ -242,6 +253,10 @@ module.exports = async function (fastify, opts) {
               type: "integer",
               default: -1, // -1 for all, 1 for Hotdeal, 0 for Not Hotdeal
             },
+            is_sold: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Sold, 0 for UnSold
+            },
             category_ids: {
               type: "string",
               default: "[]",
@@ -268,6 +283,7 @@ module.exports = async function (fastify, opts) {
           is_featured,
           is_discount,
           is_hotdeal,
+          is_sold,
         } = request.query;
 
         const skip = (page - 1) * limit;
@@ -309,6 +325,12 @@ module.exports = async function (fastify, opts) {
           };
         } else if (is_hotdeal === 0) {
           where.hot_deal_end_at = null;
+        }
+
+        if (is_sold === 1) {
+          where.is_sold = true;
+        } else if (is_sold === 0) {
+          where.is_sold = false;
         }
 
         if (category_ids.length > 0) {
@@ -588,18 +610,20 @@ module.exports = async function (fastify, opts) {
             data: {
               name,
               description,
-              category_id: category_id || null,
-              sub_category_id: sub_category_id || null,
-              sub_sub_category_id: sub_sub_category_id || null,
+              category_id: category_id,
+              sub_category_id: sub_category_id,
+              sub_sub_category_id: sub_sub_category_id,
               price_lkr,
               price_usd,
               price_type,
-              per_unit: per_unit || null,
-              discount_percent: discount_percent || null,
-              is_featured: is_featured || false,
+              per_unit: per_unit,
+              discount_percent: discount_percent,
+              is_featured: is_featured,
               is_enabled,
               is_sold,
-              hot_deal_end_at: hot_deal_end_at || null,
+              hot_deal_end_at: moment(
+                request.body.hot_deal_end_at
+              ).toISOString(),
               created_at: moment().toISOString(),
             },
           });
@@ -621,7 +645,8 @@ module.exports = async function (fastify, opts) {
             await fastify.prisma.item_features.createMany({
               data: item_features.map((feature) => ({
                 name: feature.name,
-                icon_url: feature.icon_url || null,
+                icon_url: feature.icon_url,
+                mdi_icon: feature.mdi_icon,
                 item_id: newItem.id,
                 created_at: moment().toISOString(),
               })),
@@ -687,7 +712,7 @@ module.exports = async function (fastify, opts) {
             is_featured: { type: "boolean" },
             is_enabled: { type: "boolean" },
             is_sold: { type: "boolean" },
-            hot_deal_end_at: { type: "string", format: "date-time" },
+            hot_deal_end_at: { type: "string" },
             item_properties: {
               type: "array",
               items: {
@@ -788,106 +813,78 @@ module.exports = async function (fastify, opts) {
               is_featured: is_featured,
               is_enabled: is_enabled,
               is_sold,
-              hot_deal_end_at: hot_deal_end_at,
+              hot_deal_end_at: moment(
+                request.body.hot_deal_end_at
+              ).toISOString(),
               modified_at: moment().toISOString(),
             },
           });
 
-          // Update item properties
+          await fastify.prisma.item_properties.deleteMany({
+            where: { item_id: id },
+          });
+
           if (item_properties && item_properties.length > 0) {
             for (const prop of item_properties) {
-              if (prop.id) {
-                await fastify.prisma.item_properties.update({
-                  where: { id: prop.id },
-                  data: {
-                    key: prop.key,
-                    value: prop.value,
-                    modified_at: moment().toISOString(),
-                  },
-                });
-              } else {
-                await fastify.prisma.item_properties.create({
-                  data: {
-                    key: prop.key,
-                    value: prop.value,
-                    item_id: updatedItem.id,
-                    created_at: moment().toISOString(),
-                  },
-                });
-              }
+              await fastify.prisma.item_properties.create({
+                data: {
+                  key: prop.key,
+                  value: prop.value,
+                  item_id: updatedItem.id,
+                  created_at: moment().toISOString(),
+                },
+              });
             }
           }
 
-          // Update item features
+          await fastify.prisma.item_features.deleteMany({
+            where: { item_id: id },
+          });
+
           if (item_features && item_features.length > 0) {
             for (const feature of item_features) {
-              if (feature.id) {
-                await fastify.prisma.item_features.update({
-                  where: { id: feature.id },
-                  data: {
-                    name: feature.name,
-                    icon_url: feature.icon_url || null,
-                    modified_at: moment().toISOString(),
-                  },
-                });
-              } else {
-                await fastify.prisma.item_features.create({
-                  data: {
-                    name: feature.name,
-                    icon_url: feature.icon_url || null,
-                    item_id: updatedItem.id,
-                    created_at: moment().toISOString(),
-                  },
-                });
-              }
+              await fastify.prisma.item_features.create({
+                data: {
+                  name: feature.name,
+                  icon_url: feature.icon_url || null,
+                  mdi_icon: feature.mdi_icon || null,
+                  item_id: updatedItem.id,
+                  created_at: moment().toISOString(),
+                },
+              });
             }
           }
 
-          // Update item images
+          await fastify.prisma.item_images.deleteMany({
+            where: { item_id: id },
+          });
+
           if (item_images && item_images.length > 0) {
             for (const image of item_images) {
-              if (image.id) {
-                await fastify.prisma.item_images.update({
-                  where: { id: image.id },
-                  data: {
-                    image_url: image.image_url,
-                    modified_at: moment().toISOString(),
-                  },
-                });
-              } else {
-                await fastify.prisma.item_images.create({
-                  data: {
-                    image_url: image.image_url,
-                    item_id: updatedItem.id,
-                    created_at: moment().toISOString(),
-                  },
-                });
-              }
+              await fastify.prisma.item_images.create({
+                data: {
+                  image_url: image.image_url,
+                  item_id: updatedItem.id,
+                  created_at: moment().toISOString(),
+                },
+              });
             }
           }
 
-          // Update item embeds
+          await fastify.prisma.item_embeds.deleteMany({
+            where: { item_id: id },
+          });
+
           if (item_embeds && item_embeds.length > 0) {
             for (const embed of item_embeds) {
-              if (embed.id) {
-                await fastify.prisma.item_embeds.update({
-                  where: { id: embed.id },
-                  data: {
-                    title: embed.title,
-                    html: embed.html,
-                    modified_at: moment().toISOString(),
-                  },
-                });
-              } else {
-                await fastify.prisma.item_embeds.create({
-                  data: {
-                    title: embed.title,
-                    html: embed.html,
-                    item_id: updatedItem.id,
-                    created_at: moment().toISOString(),
-                  },
-                });
-              }
+              await fastify.prisma.item_embeds.create({
+                data: {
+                  title: embed.title,
+                  html: embed.html,
+                  item_id: updatedItem.id,
+                  created_at: moment().toISOString(),
+                },
+              });
             }
           }
 

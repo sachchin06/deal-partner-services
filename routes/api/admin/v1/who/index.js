@@ -143,6 +143,7 @@ module.exports = async function (fastify, opts) {
             id: true,
             key: true,
             value: true,
+            mdi_icon: true,
             is_enabled: true,
             created_at: true,
             modified_at: true,
@@ -154,6 +155,54 @@ module.exports = async function (fastify, opts) {
         }
 
         reply.send(item);
+      } catch (error) {
+        reply.send(error);
+      } finally {
+        await fastify.prisma.$disconnect();
+      }
+    }
+  );
+
+  fastify.post(
+    "/new",
+    {
+      schema: {
+        tags: ["Admin Dashboard"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["key", "value"],
+          properties: {
+            key: {
+              type: "string",
+            },
+            value: {
+              type: "string",
+            },
+            mdi_icon: {
+              type: "string",
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        // await fastify.token.isAuth(request);
+
+        const item = await fastify.prisma.who.create({
+          data: {
+            key: request.body.key,
+            value: request.body.value,
+            mdi_icon: request.body.mdi_icon,
+            created_at: moment().toISOString(),
+            modified_at: moment().toISOString(),
+          },
+        });
+
+        reply.send({
+          message: `New entity 'Who' created successfully with Id: ${item.id}`,
+        });
       } catch (error) {
         reply.send(error);
       } finally {
@@ -181,6 +230,9 @@ module.exports = async function (fastify, opts) {
             value: {
               type: "string",
             },
+            mdi_icon: {
+              type: "string",
+            },
           },
         },
       },
@@ -205,7 +257,8 @@ module.exports = async function (fastify, opts) {
           },
           data: {
             key: request.body.key,
-            value: request.body.value || null,
+            value: request.body.value,
+            mdi_icon: request.body.mdi_icon,
             modified_at: moment().toISOString(),
           },
         });

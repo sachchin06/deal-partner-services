@@ -97,6 +97,7 @@ model item_features {
   created_at  DateTime? @db.Timestamp(0)
   modified_at DateTime? @db.Timestamp(0)
   deleted_at  DateTime? @db.Timestamp(0)
+  mdi_icon    String?   @db.Text
   items       items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_item_features_id_foreign")
 
   @@index([item_id], map: "items_item_features_id_foreign")
@@ -177,6 +178,7 @@ model why {
   created_at  DateTime? @db.Timestamp(0)
   modified_at DateTime? @db.Timestamp(0)
   deleted_at  DateTime? @db.Timestamp(0)
+  mdi_icon    String?   @db.Text
 }
 
 model faqs {
