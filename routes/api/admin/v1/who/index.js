@@ -273,4 +273,108 @@ module.exports = async function (fastify, opts) {
       }
     }
   );
+
+  fastify.post(
+    "/enable",
+    {
+      schema: {
+        tags: ["Admin Dashboard"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["id"],
+          properties: {
+            id: {
+              type: "number",
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        // await fastify.token.isAuth(request);
+
+        const existingItem = await fastify.prisma.who.findUnique({
+          where: {
+            id: request.body.id,
+          },
+        });
+
+        if (!existingItem) {
+          throw new Error("Entity 'who' not found.");
+        }
+
+        const updatedItem = await fastify.prisma.who.update({
+          where: {
+            id: request.body.id,
+          },
+          data: {
+            is_enabled: true,
+            modified_at: moment().toISOString(),
+          },
+        });
+
+        reply.send({
+          message: `Entity 'who' With Id: ${updatedItem.id} has been enabled.`,
+        });
+      } catch (error) {
+        reply.send(error);
+      } finally {
+        await fastify.prisma.$disconnect();
+      }
+    }
+  );
+
+  fastify.post(
+    "/disable",
+    {
+      schema: {
+        tags: ["Admin Dashboard"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["id"],
+          properties: {
+            id: {
+              type: "number",
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        // await fastify.token.isAuth(request);
+
+        const existingItem = await fastify.prisma.who.findUnique({
+          where: {
+            id: request.body.id,
+          },
+        });
+
+        if (!existingItem) {
+          throw new Error("Entity 'who' not found.");
+        }
+
+        const updatedItem = await fastify.prisma.who.update({
+          where: {
+            id: request.body.id,
+          },
+          data: {
+            is_enabled: false,
+            modified_at: moment().toISOString(),
+          },
+        });
+
+        reply.send({
+          message: `Entity 'who' With Id: ${updatedItem.id} has been disabled.`,
+        });
+      } catch (error) {
+        reply.send(error);
+      } finally {
+        await fastify.prisma.$disconnect();
+      }
+    }
+  );
 };
