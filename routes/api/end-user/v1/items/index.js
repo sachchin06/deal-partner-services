@@ -84,6 +84,7 @@ module.exports = async function (fastify, opts) {
         if (is_discount === 0) {
           where.OR = [{ discount_percent: null }, { discount_percent: 0 }];
         }
+
         if (is_hotdeal === 1) {
           where.hot_deal_end_at = {
             not: null,
@@ -96,44 +97,84 @@ module.exports = async function (fastify, opts) {
           where.category_id = { in: category_ids };
         }
 
-        const categoryCount = await fastify.prisma.items.count({
-          where: where,
-        });
+        // const categoryCount = await fastify.prisma.items.count({
+        //   where: where,
+        // });
 
         if (sub_category_ids.length > 0) {
           where.sub_category_id = { in: sub_category_ids };
         }
 
-        const subCategoryCount = await fastify.prisma.items.count({
-          where: where,
-        });
+        // const subCategoryCount = await fastify.prisma.items.count({
+        //   where: where,
+        // });
 
         if (sub_sub_category_ids.length > 0) {
           where.sub_sub_category_id = { in: sub_sub_category_ids };
         }
 
-        const subSubCategoryCount = await fastify.prisma.items.count({
-          where: where,
-        });
+        // const subSubCategoryCount = await fastify.prisma.items.count({
+        //   where: where,
+        // });
 
-        const totalCount = await fastify.prisma.items.count({
-          where: where,
-        });
-
-        const allCount = await fastify.prisma.items.count({
-          where: { deleted_at: null },
-        });
-
-        const items = await fastify.prisma.items.findMany({
-          where: where,
-          skip: skip,
-          take: limit,
+        let options = {
+          where,
           include: {
+            categories: true,
+            sub_categories: true,
+            sub_sub_categories: true,
             item_properties: true,
             item_features: true,
             item_images: true,
             item_embeds: true,
           },
+        };
+
+        if (limit !== -1) {
+          const skip = (page - 1) * limit;
+          options = { ...options, skip, take: limit };
+        }
+
+        const items = await fastify.prisma.items.findMany(options);
+
+        const filteredItems = items.filter((item) => {
+          const isCategoryEnabled =
+            item.categories?.is_enabled && !item.categories?.deleted_at;
+          const isSubCategoryEnabled =
+            !item.sub_categories ||
+            (item.sub_categories.is_enabled && !item.sub_categories.deleted_at);
+          const isSubSubCategoryEnabled =
+            !item.sub_sub_categories ||
+            (item.sub_sub_categories.is_enabled &&
+              !item.sub_sub_categories.deleted_at);
+
+          return (
+            isCategoryEnabled && isSubCategoryEnabled && isSubSubCategoryEnabled
+          );
+        });
+
+        function isEnabled(category) {
+          return category?.is_enabled && !category?.deleted_at;
+        }
+
+        const countEnabled = (items, categoryType) =>
+          items.filter((item) => isEnabled(item[categoryType])).length;
+
+        const categoryCount = countEnabled(filteredItems, "categories");
+        const subCategoryCount = countEnabled(filteredItems, "sub_categories");
+        const subSubCategoryCount = countEnabled(
+          filteredItems,
+          "sub_sub_categories"
+        );
+
+        //  const totalCount = await fastify.prisma.items.count({
+        //    where: where,
+        //  });
+
+        const totalCount = filteredItems.length;
+
+        const allCount = await fastify.prisma.items.count({
+          where: { deleted_at: null },
         });
 
         var count = {};
@@ -142,7 +183,7 @@ module.exports = async function (fastify, opts) {
         count.subCategoryCount = subCategoryCount;
         count.subSubCategoryCount = subSubCategoryCount;
 
-        const totalPages = Math.ceil(totalCount / limit);
+        const totalPages = limit !== -1 ? Math.ceil(totalCount / limit) : 1;
 
         const res = {
           page: page,
@@ -150,7 +191,7 @@ module.exports = async function (fastify, opts) {
           totalPages: totalPages,
           totalCount: totalCount,
           count: count,
-          data: items,
+          data: filteredItems,
         };
 
         reply.send(res);
@@ -188,6 +229,9 @@ module.exports = async function (fastify, opts) {
             id: request.params.id,
           },
           include: {
+            categories: true,
+            sub_categories: true,
+            sub_sub_categories: true,
             item_properties: true,
             item_features: true,
             item_images: true,
