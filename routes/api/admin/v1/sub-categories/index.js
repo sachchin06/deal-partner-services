@@ -79,14 +79,21 @@ module.exports = async function (fastify, opts) {
           };
         }
 
-        const subCategories = await fastify.prisma.sub_categories.findMany({
-          where: where,
-          skip: skip,
-          take: limit,
+        let options = {
+          where,
           include: {
             categories: true,
           },
-        });
+        };
+
+        if (limit !== -1) {
+          const skip = (page - 1) * limit;
+          options = { ...options, skip, take: limit };
+        }
+
+        const subCategories = await fastify.prisma.sub_categories.findMany(
+          options
+        );
 
         const totalCount = await fastify.prisma.sub_categories.count({
           where: where,
@@ -120,7 +127,7 @@ module.exports = async function (fastify, opts) {
         count.enabled = totalEnabledCount;
         count.disabled = totalDisabledCount;
 
-        const totalPages = Math.ceil(totalCount / limit);
+        const totalPages = limit !== -1 ? Math.ceil(totalCount / limit) : 1;
 
         var res = {};
         res.page = page;
@@ -200,11 +207,18 @@ module.exports = async function (fastify, opts) {
           where.is_enabled = false;
         }
 
-        const subCategories = await fastify.prisma.sub_categories.findMany({
-          where: where,
-          skip: skip,
-          take: limit,
-        });
+        let options = {
+          where,
+        };
+
+        if (limit !== -1) {
+          const skip = (page - 1) * limit;
+          options = { ...options, skip, take: limit };
+        }
+
+        const subCategories = await fastify.prisma.sub_categories.findMany(
+          options
+        );
 
         const totalCount = await fastify.prisma.sub_categories.count({
           where,
@@ -233,7 +247,7 @@ module.exports = async function (fastify, opts) {
         count.enabled = totalEnabledCount;
         count.disabled = totalDisabledCount;
 
-        const totalPages = Math.ceil(totalCount / limit);
+        const totalPages = limit !== -1 ? Math.ceil(totalCount / limit) : 1;
 
         const res = {
           page: page,
