@@ -686,6 +686,11 @@ module.exports = async function (fastify, opts) {
         });
 
         if (existingItem) {
+          if (existingItem.deleted_at) {
+            throw new Error(
+              "The category name is already in the system but marked as deleted. Please contact DealPartner's database administrator to resolve this."
+            );
+          }
           throw new Error("The item name already exists in the system.");
         }
 
@@ -696,8 +701,8 @@ module.exports = async function (fastify, opts) {
               name,
               description,
               category_id: category_id,
-              sub_category_id: sub_category_id,
-              sub_sub_category_id: sub_sub_category_id,
+              sub_category_id: sub_category_id || null,
+              sub_sub_category_id: sub_sub_category_id || null,
               price_lkr,
               price_usd,
               price_type,
@@ -878,6 +883,19 @@ module.exports = async function (fastify, opts) {
 
         if (!existingItem) {
           throw new Error("Item not found.");
+        }
+
+        const existingItemByName = await fastify.prisma.items.findFirst({
+          where: { name },
+        });
+
+        if (existingItemByName && existingItemByName.id != id) {
+          if (existingItemByName.deleted_at) {
+            throw new Error(
+              "The category name is already in the system but marked as deleted. Please contact DealPartner's database administrator to resolve this."
+            );
+          }
+          throw new Error("The item name already exists in the system.");
         }
 
         await fastify.prisma.$transaction(async (prisma) => {

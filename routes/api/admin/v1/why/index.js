@@ -144,6 +144,7 @@ module.exports = async function (fastify, opts) {
             title: true,
             description: true,
             icon_url: true,
+            mdi_icon: true,
             is_enabled: true,
             created_at: true,
             modified_at: true,
@@ -182,6 +183,9 @@ module.exports = async function (fastify, opts) {
             icon_url: {
               type: "string",
             },
+            mdi_icon: {
+              type: "string",
+            },
             is_enabled: {
               type: "boolean",
             },
@@ -198,6 +202,7 @@ module.exports = async function (fastify, opts) {
             title: request.body.title || null,
             description: request.body.description || null,
             icon_url: request.body.icon_url || null,
+            mdi_icon: request.body.mdi_icon || null,
             is_enabled: request.body.is_enabled,
             created_at: moment().toISOString(),
             modified_at: moment().toISOString(),
@@ -237,6 +242,9 @@ module.exports = async function (fastify, opts) {
             icon_url: {
               type: "string",
             },
+            mdi_icon: {
+              type: "string",
+            },
             is_enabled: {
               type: "boolean",
             },
@@ -266,6 +274,7 @@ module.exports = async function (fastify, opts) {
             title: request.body.title || null,
             description: request.body.description || null,
             icon_url: request.body.icon_url || null,
+            mdi_icon: request.body.mdi_icon || null,
             is_enabled: request.body.is_enabled,
             modified_at: moment().toISOString(),
           },

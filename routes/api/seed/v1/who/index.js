@@ -25,8 +25,12 @@ module.exports = async function (fastify, opts) {
               "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
           },
           {
-            key: "image",
-            value: "https://dummyimage.com/600x400/000/fff&text=Sample+Image",
+            key: "image_1",
+            value: "https://dummyimage.com/600x400/000/fff&text=Sample+Image1",
+          },
+          {
+            key: "image_2",
+            value: "https://dummyimage.com/600x400/000/fff&text=Sample+Image2",
           },
           { key: "email", value: "example@example.com" },
           { key: "facebook", value: "https://www.facebook.com/example" },
@@ -42,6 +46,8 @@ module.exports = async function (fastify, opts) {
           { key: "zip", value: "123456" },
           { key: "phone_1", value: "+1234567890" },
           { key: "phone_2", value: "+0987654321" },
+          { key: "whatsapp", value: "+1234567890" },
+          { key: "location", value: "Colombo, Sri Lanka" },
         ];
 
         const promises = datas.map((entry) =>
