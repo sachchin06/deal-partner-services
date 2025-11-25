@@ -35,6 +35,24 @@ module.exports = async function (fastify, opts) {
               type: "integer",
               default: -1, // -1 for all, 1 for Hotdeal, 0 for Not Hotdeal
             },
+            is_sold: {
+              type: "integer",
+              default: -1, // -1 for all, 1 for Sold, 0 for Not Un Sold
+            },
+            price_type: {
+              type: "string",
+              default: "",
+            },
+            sort: {
+              type: "string",
+              enum: [
+                "oldest",
+                "newest",
+                "price_low_to_high",
+                "price_high_to_low",
+              ],
+              default: "newest",
+            },
             category_ids: {
               type: "string",
               default: "[]",
@@ -53,8 +71,17 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       try {
-        const { page, limit, search, is_featured, is_discount, is_hotdeal } =
-          request.query;
+        const {
+          page,
+          limit,
+          search,
+          is_featured,
+          is_discount,
+          is_hotdeal,
+          is_sold,
+          price_type,
+          sort,
+        } = request.query;
         const skip = (page - 1) * limit;
 
         const category_ids = JSON.parse(request.query.category_ids);
@@ -93,32 +120,47 @@ module.exports = async function (fastify, opts) {
           where.hot_deal_end_at = null;
         }
 
+        if (is_sold === 1) {
+          where.is_sold = true;
+        } else if (is_sold === 0) {
+          where.is_sold = false;
+        }
+
+        if (price_type) where.price_type = price_type;
+
         if (category_ids.length > 0) {
           where.category_id = { in: category_ids };
         }
-
-        // const categoryCount = await fastify.prisma.items.count({
-        //   where: where,
-        // });
 
         if (sub_category_ids.length > 0) {
           where.sub_category_id = { in: sub_category_ids };
         }
 
-        // const subCategoryCount = await fastify.prisma.items.count({
-        //   where: where,
-        // });
-
         if (sub_sub_category_ids.length > 0) {
           where.sub_sub_category_id = { in: sub_sub_category_ids };
         }
 
-        // const subSubCategoryCount = await fastify.prisma.items.count({
-        //   where: where,
-        // });
+        let orderBy = {};
+        switch (sort) {
+          case "oldest":
+            orderBy = { created_at: "asc" };
+            break;
+          case "newest":
+            orderBy = { created_at: "desc" };
+            break;
+          case "price_low_to_high":
+            orderBy = { price_lkr: "asc" };
+            break;
+          case "price_high_to_low":
+            orderBy = { price_lkr: "desc" };
+            break;
+          default:
+            orderBy = { created_at: "desc" };
+        }
 
         let options = {
           where,
+          orderBy,
           include: {
             categories: true,
             sub_categories: true,
@@ -166,10 +208,6 @@ module.exports = async function (fastify, opts) {
           filteredItems,
           "sub_sub_categories"
         );
-
-        //  const totalCount = await fastify.prisma.items.count({
-        //    where: where,
-        //  });
 
         const totalCount = filteredItems.length;
 

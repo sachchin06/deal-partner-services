@@ -12,12 +12,11 @@ module.exports = async function (fastify, opts) {
     async (request, reply) => {
       try {
         await fastify.prisma.who.deleteMany({});
+
+        await fastify.prisma.$executeRawUnsafe(
+          `ALTER TABLE who AUTO_INCREMENT = 1;`
+        );
         const datas = [
-          {
-            key: "What We Offer",
-            value:
-              "A wide range of property options, personalized guidance, and expert support in finding the ideal location.",
-          },
           { key: "heading", value: "Lorem Ipsum Heading" },
           {
             key: "description",
