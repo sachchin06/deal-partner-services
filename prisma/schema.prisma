@@ -223,3 +223,16 @@ model reviews {
   modified_at DateTime? @db.Timestamp(0)
   deleted_at  DateTime? @db.Timestamp(0)
 }
+
+model emails {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  name        String    @db.VarChar(255)
+  email       String    @db.VarChar(255)
+  phone       String?   @db.VarChar(255)
+  subject     String    @db.Text
+  message     String    @db.Text
+  is_read     Boolean?  @default(false)
+  created_at  DateTime? @db.Timestamp(0)
+  modified_at DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
