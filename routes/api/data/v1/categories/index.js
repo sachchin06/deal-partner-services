@@ -14,16 +14,25 @@ module.exports = async function (fastify, opts) {
       try {
         const categories = await fastify.prisma.categories.findMany({
           where: {
+            is_enabled: true,
             deleted_at: null,
           },
           select: {
             id: true,
             name: true,
             sub_categories: {
+              where: {
+                is_enabled: true,
+                deleted_at: null,
+              },
               select: {
                 id: true,
                 name: true,
                 sub_sub_categories: {
+                  where: {
+                    is_enabled: true,
+                    deleted_at: null,
+                  },
                   select: {
                     id: true,
                     name: true,
