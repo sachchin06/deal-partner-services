@@ -43,6 +43,8 @@ module.exports = async function (fastify, opts) {
               type: "string",
               default: "",
             },
+            min_price: { type: "number", default: 0 },
+            max_price: { type: "number", default: 0 },
             sort: {
               type: "string",
               enum: [
@@ -80,6 +82,8 @@ module.exports = async function (fastify, opts) {
           is_hotdeal,
           is_sold,
           price_type,
+          min_price,
+          max_price,
           sort,
         } = request.query;
         const skip = (page - 1) * limit;
@@ -127,6 +131,11 @@ module.exports = async function (fastify, opts) {
         }
 
         if (price_type) where.price_type = price_type;
+
+        if (min_price > 0)
+          where.price_lkr = { ...where.price_lkr, gte: min_price };
+        if (max_price > 0)
+          where.price_lkr = { ...where.price_lkr, lte: max_price };
 
         if (category_ids.length > 0) {
           where.category_id = { in: category_ids };
